@@ -1,12 +1,9 @@
 
 
-interface HomeProps {
-
-}
 
 // *********************************************************** \\
 
-export function Home( props: HomeProps ) {
+export function Home(  ) {
     
     // Render
     return (

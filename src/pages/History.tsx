@@ -1,12 +1,8 @@
 
 
-interface HistoryProps {
-
-}
-
 // *********************************************************** \\
 
-export function History( props: HistoryProps ) {
+export function History( ) {
     
     // Render
     return (
