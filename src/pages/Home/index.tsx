@@ -5,18 +5,24 @@ import * as zod from "zod";
 
 import { CountContainer, FormContainer, HomeContainer, MinutesAmountInput, SeparatorContainer, StartButton, TaskInput } from "./styles";
 
-
 const newCycleFormValidationSchema = zod.object( {
     task: zod.string().min(1, 'Informe a tarefa'),
     minutesAmount: zod.number().min(5, 'O ciclo precisa ser de no minimo 5 minutos').max(60, 'O ciclo precisa ser de no maximo 60 minutos')
 } )
+
+//interface NewCycleFormData {
+//    task: string,
+//    minutesAmount: number
+//}
+
+type NewCycleFormData = zod.infer< typeof newCycleFormValidationSchema >
 
 // *********************************************************** \\
 
 export function Home(  ) {
     
     // Atributos
-    const { register, handleSubmit, watch, formState } = useForm( {
+    const { register, handleSubmit, watch, formState } = useForm< NewCycleFormData >( {
         resolver: zodResolver( newCycleFormValidationSchema )
     } );
     const task = watch("task");
@@ -25,7 +31,7 @@ export function Home(  ) {
     //console.log( formState.errors );
 
     // Métodos
-    function handleCreateNewCycle(data: any) {
+    function handleCreateNewCycle(data: NewCycleFormData) {
         console.log(data);
         console.log(task);
     }
