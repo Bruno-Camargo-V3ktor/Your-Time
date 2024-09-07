@@ -2,7 +2,7 @@
 
 // *********************************************************** \\
 
-import { HistoryContainer, HistoryList } from "./styles";
+import { HistoryContainer, HistoryList, Status } from "./styles";
 
 export function History( ) {
     
@@ -13,6 +13,7 @@ export function History( ) {
 
             <HistoryList>
                 <table>
+                    
                     <thead>
                         <tr>
                             <th>Tarefa</th>
@@ -27,37 +28,53 @@ export function History( ) {
                             <td>Tarefa #1</td>
                             <td>30 Minutos</td>
                             <td>Há 2 meses</td>
-                            <td>Concluido</td>
+                            
+                            <td>
+                                <Status statusColor="yellow">Em andamento</Status>
+                            </td>
                         </tr>
 
                         <tr>
                             <td>Tarefa #1</td>
                             <td>30 Minutos</td>
                             <td>Há 2 meses</td>
-                            <td>Concluido</td>
+
+                            <td>
+                                <Status statusColor="green">Concluido</Status>
+                            </td>
                         </tr>
 
                         <tr>
                             <td>Tarefa #1</td>
                             <td>30 Minutos</td>
                             <td>Há 2 meses</td>
-                            <td>Concluido</td>
+                            
+                            <td>
+                                <Status statusColor="green">Concluido</Status>
+                            </td>
                         </tr>
 
                         <tr>
                             <td>Tarefa #1</td>
                             <td>30 Minutos</td>
                             <td>Há 2 meses</td>
-                            <td>Concluido</td>
+                            
+                            <td>
+                                <Status statusColor="green">Concluido</Status>
+                            </td>
                         </tr>
 
                         <tr>
                             <td>Tarefa #1</td>
                             <td>30 Minutos</td>
                             <td>Há 2 meses</td>
-                            <td>Concluido</td>
+                            
+                            <td>
+                                <Status statusColor="red">Interrompido</Status>
+                            </td>
                         </tr>
                     </tbody>
+
                 </table>
             </HistoryList>
         </HistoryContainer>
