@@ -74,6 +74,13 @@ export function Home(  ) {
     }
 
     // Effects
+    useEffect( () =>
+    {
+        if( activeCycle ) {
+            document.title = `Your Time (${minutes}:${seconds})`
+        }
+    }, [activeCycle, minutes, seconds])
+
     useEffect( () => 
     {
         let countdownIntervalId: number;
