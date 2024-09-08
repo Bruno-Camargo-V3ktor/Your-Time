@@ -1,10 +1,10 @@
-import { Play } from "phosphor-react";
+import { HandPalm, Play } from "phosphor-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
 import { differenceInSeconds } from "date-fns";
 
-import { CountContainer, FormContainer, HomeContainer, MinutesAmountInput, SeparatorContainer, StartButton, TaskInput } from "./styles";
+import { CountContainer, FormContainer, HomeContainer, MinutesAmountInput, SeparatorContainer, StartButton, StopButton, TaskInput } from "./styles";
 import { useEffect, useState } from "react";
 
 const newCycleFormValidationSchema = zod.object( {
@@ -23,7 +23,8 @@ interface Cycle {
     id: number,
     task: string,
     minutesAmount: number,
-    startDate: Date
+    startDate: Date,
+    interruptDate?: Date
 }
 
 // *********************************************************** \\
@@ -41,7 +42,7 @@ export function Home(  ) {
     } );
 
     // Atributos
-    const activeCycle = cycles.filter( (value) => value.id === activeCycleId )[0]
+    const activeCycle = cycles.find( (value) => value.id === activeCycleId )
 
     const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
     const currentSeconds = activeCycle ? totalSeconds-amountSecondsPassed : 0
@@ -71,6 +72,16 @@ export function Home(  ) {
         setActiveCycleId( newCycle.id )
 
         reset();
+    }
+
+    function handleInterruptActiveCycle() {
+        setCycles( (value) => value.map( cycle => { 
+            if( cycle.id === activeCycleId ) return { ...cycle, interruptDate: new Date() }
+            else return cycle
+         }) 
+        )
+
+        setActiveCycleId(null);
     }
 
     // Effects
@@ -108,6 +119,7 @@ export function Home(  ) {
                       placeholder="Dê um nome para o seu projeto" 
                       list="task-suggestions"
 
+                      disabled={ !!activeCycle }
                       { ...register('task') }
                     />
 
@@ -125,7 +137,8 @@ export function Home(  ) {
                       step={5}
                       min={5}
                       max={60}
-
+                      
+                      disabled={ !!activeCycle }
                       { ...register('minutesAmount', {valueAsNumber: true}) }
                     />
 
@@ -140,10 +153,20 @@ export function Home(  ) {
                     <span>{seconds[1]}</span>
                 </CountContainer>
 
-                <StartButton disabled={ isSubmitDisable } type='submit'>
-                    <Play size={24}/>
-                    Começar
-                </StartButton >
+                { activeCycle 
+                    ? (<StopButton type='button' onClick={ handleInterruptActiveCycle }>
+                            <HandPalm size={24}/>
+                            Interromper
+                        </StopButton >
+                      )
+
+                    : (<StartButton disabled={ isSubmitDisable } type='submit'>
+                            <Play size={24}/>
+                            Começar
+                        </StartButton >
+                      )
+
+                }
 
             </form>
         </HomeContainer>
