@@ -1,14 +1,6 @@
 import { createContext, ReactNode, useReducer, useState } from "react";
-
-
-interface Cycle {
-    id: number,
-    task: string,
-    minutesAmount: number,
-    startDate: Date,
-    interruptDate?: Date,
-    finishedDate?: Date
-}
+import { Cycle, cyclesReducer } from "../reducers/cycles/reducer";
+import { addNewCycleAction, interruptActiveCycleAction, markCycleAsFinishedAction } from "../reducers/cycles/actions";
 
 interface NewCycleFormData {
     task: string,
@@ -29,11 +21,6 @@ interface CycleContextProps {
     children: ReactNode
 }
 
-interface CycleState {
-    cycles: Cycle[],
-    activeCycleId: number | undefined
-}
-
 // *********************************************************** \\
 
 export const CyclesContext = createContext( {} as CycleContextType )
@@ -44,48 +31,7 @@ export function CyclesContextProvider( { children }: CycleContextProps ) {
     //const [cycles, setCycles] = useState<Cycle[]>( [] )
     //const [activeCycleId, setActiveCycleId] = useState<number | null>( null )
 
-    const [cyclesState, dispatch] = useReducer( (state: CycleState, action: any) => {
-        console.log( state );
-        console.log( action );
-
-        switch (action.type) {
-            case "ADD_NEW_CYCLE":
-                return {
-                    ...state,
-                    cycles: [ ...state.cycles, action.payload.data ],
-                    activeCycleId: action.payload.data.id
-                }
-                break;
-            
-            case "INTERRUPT_ACTIVE_CYCLE":
-                return {
-                    ...state,
-                    cycles: state.cycles.map( (cycle) => {
-                        if( cycle.id === state.activeCycleId ) return { ...cycle, interruptDate: new Date() }
-                        else return cycle
-                    } ),
-                    activeCycleId: null
-                }
-
-                break;
-            
-                case "MARK_CYCLE_AS_FINISHED":
-                    return {
-                        ...state,
-                        cycles: state.cycles.map( (cycle) => {
-                            if( cycle.id === state.activeCycleId ) return { ...cycle, finishedDate: new Date() }
-                            else return cycle
-                        } ),
-                        activeCycleId: null
-                    }
-    
-                    break;
-
-            default:
-                return state;
-        }
-        
-    }, {cycles: [], activeCycleId: null} )
+    const [cyclesState, dispatch] = useReducer( cyclesReducer, {cycles: [], activeCycleId: null} )
 
     const [amountSecondsPassed, setAmountSecondsPassed] = useState( 0 )
 
@@ -100,10 +46,7 @@ export function CyclesContextProvider( { children }: CycleContextProps ) {
         //    else return cycle
         //}) )
 
-        dispatch( {
-            type: "MARK_CYCLE_AS_FINISHED",
-            payload: { data: activeCycle }
-        } )
+        dispatch( markCycleAsFinishedAction() )
     }
 
     function setSecondsPassed(seconds: number) {
@@ -120,10 +63,7 @@ export function CyclesContextProvider( { children }: CycleContextProps ) {
             startDate: new Date()
         }
         
-        dispatch( {
-            type: "ADD_NEW_CYCLE",
-            payload: { data: newCycle }
-        } )
+        dispatch( addNewCycleAction( newCycle ) )
 
         //setCycles( value => [...value, newCycle] )
         //setActiveCycleId( newCycle.id )
@@ -136,13 +76,9 @@ export function CyclesContextProvider( { children }: CycleContextProps ) {
         // }) 
         //)
 
-        dispatch( {
-            type: "INTERRUPT_ACTIVE_CYCLE",
-            payload: { data: activeCycle }
-        } )
+        dispatch( interruptActiveCycleAction() )
 
         setAmountSecondsPassed( 0 )
-        setActiveCycleId( null )
     }
 
     // Render
