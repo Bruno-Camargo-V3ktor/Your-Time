@@ -1,7 +1,8 @@
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CountContainer, SeparatorContainer } from "./styles";
 import { differenceInSeconds } from "date-fns";
+import { CycleContext } from "../..";
 
 export function Countdown() {
     
@@ -9,10 +10,25 @@ export function Countdown() {
     const [amountSecondsPassed, setAmountSecondsPassed] = useState( 0 )
 
     // Atributos
+    const { 
+        activeCycle,
+        markCurrentCycleAsFinished
+     } = useContext( CycleContext )
     const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
-
     
+    const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
+    const minutesAmount = Math.floor( currentSeconds / 60 )
+    const secondsAmount = currentSeconds - ( minutesAmount * 60 ) // currentSeconds % 60
+    const minutes = String( minutesAmount ).padStart(2, '0');
+    const seconds = String( secondsAmount ).padStart(2, '0');
+
     // Effetcs
+    useEffect( () =>
+    {
+        if( activeCycle ) { document.title = `Your Time (${minutes}:${seconds})` }
+        else document.title = `Your Time`
+    }, [activeCycle, minutes, seconds])
+
     useEffect( () => 
         {  
             let countdownIntervalId: number;
@@ -23,12 +39,8 @@ export function Countdown() {
     
                     const secondsDifference = differenceInSeconds(new Date(), activeCycle.startDate)
                     if( secondsDifference >= totalSeconds ) {
+                        markCurrentCycleAsFinished()
                         
-                        setCycles( value => value.map( cycle => {
-                            if( cycle.id == activeCycle.id ) return { ...cycle, finishedDate: new Date() }
-                            else return cycle
-                        }) )
-    
                         setAmountSecondsPassed( () => totalSeconds );
                         clearInterval( countdownIntervalId );
                     }
@@ -36,10 +48,11 @@ export function Countdown() {
     
                 }, 1000);
             }
-    
+            else setAmountSecondsPassed( 0 )
+            
             return () => { clearInterval( countdownIntervalId ); }
     
-        }, [activeCycle, totalSeconds] )
+        }, [activeCycle, totalSeconds, markCurrentCycleAsFinished] )
 
     // Render
     return (
