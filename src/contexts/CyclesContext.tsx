@@ -1,6 +1,7 @@
-import { createContext, ReactNode, useReducer, useState } from "react";
+import { createContext, ReactNode, useEffect, useReducer, useState } from "react";
 import { Cycle, cyclesReducer } from "../reducers/cycles/reducer";
 import { addNewCycleAction, interruptActiveCycleAction, markCycleAsFinishedAction } from "../reducers/cycles/actions";
+import { differenceInSeconds } from "date-fns";
 
 interface NewCycleFormData {
     task: string,
@@ -31,13 +32,28 @@ export function CyclesContextProvider( { children }: CycleContextProps ) {
     //const [cycles, setCycles] = useState<Cycle[]>( [] )
     //const [activeCycleId, setActiveCycleId] = useState<number | null>( null )
 
-    const [cyclesState, dispatch] = useReducer( cyclesReducer, {cycles: [], activeCycleId: null} )
+    const [cyclesState, dispatch] = useReducer( 
+        cyclesReducer, 
+        {cycles: [], activeCycleId: null},
+        (initialState) => {
+            const storedStateAsJSON = localStorage.getItem('@your-timer:cycles-state-1.0.0')
 
-    const [amountSecondsPassed, setAmountSecondsPassed] = useState( 0 )
+            if( storedStateAsJSON ) {
+                return JSON.parse( storedStateAsJSON )
+            }
+
+            return initialState
+        }
+    )
 
     // Atributos
     const { cycles, activeCycleId } = cyclesState
     const activeCycle = cycles.find( (value) => value.id === activeCycleId )
+
+    const [amountSecondsPassed, setAmountSecondsPassed] = useState( () => {
+        if( activeCycle ) { return differenceInSeconds( new Date(), activeCycle.startDate ) }
+        return 0
+    } )
 
     // Métodos
     function markCurrentCycleAsFinished() {
@@ -80,6 +96,12 @@ export function CyclesContextProvider( { children }: CycleContextProps ) {
 
         setAmountSecondsPassed( 0 )
     }
+
+    // Effects
+    useEffect( () => {
+        const stateJSON = JSON.stringify( cyclesState )
+        localStorage.setItem('@your-timer:cycles-state-1.0.0', stateJSON)
+    },[cyclesState] )
 
     // Render
     return (
